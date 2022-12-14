@@ -6,24 +6,21 @@ A component to stream data from Twitter using the Tweepy Python package
 import os
 import re
 import sys
-import csv
 import json
 import time
-import string
 import datetime
-import argparse
 import tweepy
-
+import boto3
 import pprint
-from tweet import Tweet
-import preprocessor.api as p
+# from tweet import Tweet
+# import preprocessor.api as p
 
 from flask import Flask
 
 # Grab root directory for project (FIXME)
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-class CustomStreamListener(tweepy.StreamListener):
+class Twitter(tweepy.StreamListener):
     """
     A custom stream listener object for Tweepy to use for streaming Twitter data
     """
@@ -32,11 +29,13 @@ class CustomStreamListener(tweepy.StreamListener):
         """
         :return: A Tweepy Stream Listener
         """
-        super(CustomStreamListener, self).__init__()
+        super(Twitter, self).__init__()
         self.start_time = time.time()
         self.time_limit = time_limit
         self.tweet_file = open(ROOT + '/data/streamed_tweets_' + str(datetime.date.today()) + '.csv', 'a+')
         self.user_file = open(ROOT + '/data/streamed_users_' + str(datetime.date.today()) + '.csv', 'a+')
+
+    
 
     
     def on_error(self, status_code):
@@ -125,40 +124,45 @@ def parse_cli():
     :return: args
     """
     parser = argparse.ArgumentParser(description='Streamer settings')
-    parser.add_argument('--creds', type=str, help='Twitter API Credentials file')
+    # parser.add_argument('--creds', type=str, help='Twitter API Credentials file')
     parser.add_argument('--keys', type=str, help='List of keywords to track on Twitter')
     parser.add_argument('--time', type=int, help='Time to stream Twitter')
 
     return parser.parse_args()
 
 
-def main(args):
-    """
-    Fits LDA topic model to Twitter data
-    """
-    if args.creds is None:
-        print("- Need API credentials to stream data -")
-        sys.exit(0)
+def main():
+    # if args.creds is None:
+    #     print("- Need API credentials to stream data -")
+    #     sys.exit(0)
 
-    if args.keys is None:
-        print("- Need list of keywords to track -")
-        sys.exit(0)
-    
-    with open(ROOT + '/data/' + args.creds, 'r') as f:
-        creds = json.load(f)
+    # if args.keys is None:
+    #     print("- Need list of keywords to track -")
+    #     sys.exit(0)
 
-    with open(ROOT + '/twitter/' + args.keys, 'r') as f:
-        keywords = f.read().splitlines()
+    # with open(ROOT + '/twitter/' + args.keys, 'r') as f:
+    #     keywords = f.read().splitlines()
 
-    time_limit = args.time
+    s3_client = boto3.client('s3')
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket('sombs-api-keys')
+    # Iterates through all the objects, doing the pagination for you. Each obj
+    # is an ObjectSummary, so it doesn't contain the body. You'll need to call
+    # get to get the whole body.
+    for obj in bucket.objects.all():
+        key = obj.key
+        body = obj.get()['Body'].read()
+        print(key, body)
 
-    auth = tweepy.OAuthHandler(creds['twitter_consumer_key'], creds['twitter_consumer_secret'])
-    auth.set_access_token(creds['twitter_access_key'], creds['twitter_access_secret'])
-    api = tweepy.API(auth)
+    # time_limit = args.time
 
-    stream = tweepy.Stream(auth=api.auth, listener=CustomStreamListener(time_limit=time_limit))
-    stream.filter(track=keywords, languages=['en'])
+    # auth = tweepy.OAuthHandler(creds['twitter_consumer_key'], creds['twitter_consumer_secret'])
+    # auth.set_access_token(creds['twitter_access_key'], creds['twitter_access_secret'])
+    # api = tweepy.API(auth)
+
+    # stream = tweepy.Stream(auth=api.auth, listener=Twitter(time_limit=time_limit))
+    # stream.filter(track=keywords, languages=['en'])
     
 
 if __name__ == '__main__':
-    main(parse_cli())
+    main()

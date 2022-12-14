@@ -1,5 +1,5 @@
 '''
-Configurations for streaming tweets from Twitter
+Configurations for Social Media API Component
 '''
 
 config = {
@@ -30,8 +30,4 @@ config = {
             'port': 5432
         }
     }
-    'twitter_consumer_key': '3ZvlZXSt61mKScLZN1RPO0R6R', 
-    'twitter_consumer_secret': 'TbqFhWxQ7hncXTB7XAeA4QjvLg7FkWXmMxjsM2AOMTOqTRCjyG', 
-    'twitter_access_key': '1163449515615105026-86ELYUGZtvkmAJ35wD1kJecsLMDjUz', 
-    'twitter_access_secret': 'PvCnJF6aqhr5Xser7IjlprqD4ZDTnKbvDOMyu9VV6cCTr'
 }

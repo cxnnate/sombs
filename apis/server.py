@@ -1,10 +1,12 @@
 import os
 import json
 import time
+import boto3
 
 from config import config
 from flask import Flask, request
-from logging.config import dictConfig
+# from logging.config import dictConfig
+from src import Twitter
 
 def create_application():
     """
@@ -13,23 +15,23 @@ def create_application():
     :return: new Flask application
     """
 
-    dictConfig({
-        'version': 1,
-        'formatters': {
-            'default': {
-                'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            }
-        },
-        'handlers': { 'wsgi': {
-            'class': 'logging.StreamHandler',
-            'stream': 'ext://flask.logging.wsgi_errors_stream',
-            'formatter': 'default'
-        }},
-        'root': {
-            'level': 'DEBUG' if os.getenv('DEBUG', False) else 'INFO',
-            'handlers': ['wsgi']
-        }
-    }) 
+    # dictConfig({
+    #     'version': 1,
+    #     'formatters': {
+    #         'default': {
+    #             'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    #         }
+    #     },
+    #     'handlers': { 'wsgi': {
+    #         'class': 'logging.StreamHandler',
+    #         'stream': 'ext://flask.logging.wsgi_errors_stream',
+    #         'formatter': 'default'
+    #     }},
+    #     'root': {
+    #         'level': 'DEBUG' if os.getenv('DEBUG', False) else 'INFO',
+    #         'handlers': ['wsgi']
+    #     }
+    # }) 
 
     application = Flask(__name__, static_url_path=None)
     application.config['SECRET_KEY'] = os.getenv('SECRET_KEY', os.urandom(32))
@@ -39,10 +41,16 @@ def create_application():
     application.config['ENV'] = env
     application.config['DEBUG'] = os.getenv('DEBUG', config[env]['debug'])
 
+    # s3_bucket = boto3.client('s3')
+    def get_s3_bucket():
+        s3 = boto3.resource('s3')
+        bucket = s3.Bucket('sombs-api-keys')
+        return bucket
+
     # main route
     @application.route("/")
     def index():
-        message = "Running the Twitter Stream component. Setting up now..."
+        message = "Running up the Social Media API component..."
         application.logger.debug(message)
         return message
     
@@ -50,12 +58,35 @@ def create_application():
     def before_first_request():
         application.logger.info("Establishing database connection...")
 
-    @application.route("/start_stream", methods=['POST', 'GET'])
+    @application.route("/start_twitter_stream", methods=['POST', 'GET'])
     def start_twitter_stream():
+        """
+        Endpoint to start streaming live tweets from Twitter. Requires a list of topics, stream duration,
+        :param topics:
+        :param duration:
+        :return:
+        """
+        
+        # get twitter API keys from S3 bucket
+        s3_bucket = get_s3_bucket()
+        for obj in bucket.objects.all():
+            key = obj.key
+            body = obj.get()['Body'].read()
+            print(key, body)
+        
+        # create ID for stream (want to start stream thread)
+
         return "", 200
 
-    @application.route("stop_stream", methods=['POST'])
+    @application.route("/stop_twitter_stream", methods=['POST'])
     def stop_twitter_stream():
+        """
+        Endpoint to stop streaming live tweets from Twitter. Requires a list of topics, stream duration,
+        :param topics:
+        :param duration:
+        :return
+        """
+        print("brap brap stop", flush=True)
         return "", 200
     
     return application
