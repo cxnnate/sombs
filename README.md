@@ -1,4 +1,4 @@
-# SOcial Media Bot Sentiment - SoMBS
+# Social Media Bot Sentiment - SoMBS
 
 ## that's some bs, right?
 
