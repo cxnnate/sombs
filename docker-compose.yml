@@ -10,7 +10,7 @@ services:
     container_name: frontend
     build: ./frontend/
     ports:
-      - 8080:80
+      - 7070:80
     volumes:
       - ./frontend/assets/css:/frontend/assets/css
       - ./frontend/components:/frontend/components
@@ -23,7 +23,7 @@ services:
     build: ./apis/
     restart: always
     ports:
-      - 8081:80
+      - 7071:80
     
   postgres:
     container_name: postgres

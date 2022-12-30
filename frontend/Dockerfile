@@ -12,6 +12,7 @@ RUN apk add git
 
 # copy the app, note .dockerignore
 COPY . /usr/src/frontend
+RUN npm config set strict-ssl false
 RUN npm config set registry http://registry.npmjs.org/ 
 RUN npm install
 RUN npm run build

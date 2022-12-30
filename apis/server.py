@@ -6,7 +6,7 @@ import boto3
 from config import config
 from flask import Flask, request
 # from logging.config import dictConfig
-from src import Twitter
+import src
 
 def create_application():
     """
