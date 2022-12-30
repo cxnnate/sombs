@@ -6,11 +6,13 @@ RUN mkdir -p /usr/src/frontend
 WORKDIR /usr/src/frontend
 
 # update and install dependency
+RUN sed -i 's/https/http/' /etc/apk/repositories
 RUN apk update && apk upgrade
 RUN apk add git
 
 # copy the app, note .dockerignore
 COPY . /usr/src/frontend
+RUN npm config set registry http://registry.npmjs.org/ 
 RUN npm install
 RUN npm run build
 
