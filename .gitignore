@@ -3,7 +3,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,linux,windows,vscode,virtualenv,python
 
 ### Custom
-senti-bot-detection/database/data/
+sombs/database/data/
 *.txt
 *.json
 
