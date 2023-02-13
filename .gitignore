@@ -5,7 +5,10 @@
 ### Custom
 sombs/database/data/
 *.txt
+!package-lock.json
+!package.json
 *.json
+
 
 
 ### Linux ###
